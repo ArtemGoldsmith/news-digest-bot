@@ -2,7 +2,9 @@
 
 A personal daily news digest for Telegram: RSS feeds are filtered and summarized by Gemini for a reader profile you write in plain words, and a companion bot answers follow-up questions with Google Search grounding.
 
-<!-- screenshot: telegram digest -->
+![Example digest in Telegram](docs/digest-example.png)
+
+<sub>Excerpt from a real digest (personal sections omitted).</sub>
 
 Zero npm dependencies. Runs on GitHub Actions (digest) and a Cloudflare Worker (bot, scheduling, dedup state).
 
