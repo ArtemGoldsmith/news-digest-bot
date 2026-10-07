@@ -1,0 +1,26 @@
+# Copy to wrangler.toml (gitignored) and fill in the placeholders.
+name = "news-digest-bot"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+# Exact-time replacement for GitHub's best-effort cron (UTC).
+[triggers]
+crons = ["0 7 * * *"]
+
+[vars]
+GH_WORKFLOW = "digest.yml"
+# BOT_LANGUAGE = "English"   # language of the bot's answers
+
+# Create with: wrangler kv namespace create KV
+[[kv_namespaces]]
+binding = "KV"
+id = "<YOUR_KV_NAMESPACE_ID>"
+
+# Secrets — set via `wrangler secret put <NAME>`, never committed:
+#   ALLOWED_CHAT_ID     your Telegram user id; the only chat the bot answers
+#   GH_REPO             <owner>/<repo> of your fork, e.g. octocat/news-digest-bot
+#   GH_TOKEN            fine-grained PAT with Actions: read & write on that repo
+#   TELEGRAM_BOT_TOKEN  from @BotFather
+#   GEMINI_API_KEY      from Google AI Studio
+#   WEBHOOK_SECRET      random string, also passed to Telegram's setWebhook
+#   INGEST_SECRET       random string, same value as the INGEST_SECRET Actions secret

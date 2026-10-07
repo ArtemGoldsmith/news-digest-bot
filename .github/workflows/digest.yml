@@ -1,0 +1,47 @@
+name: Daily news digest
+
+# Scheduling lives in the Cloudflare Worker (worker/wrangler.example.toml): its cron
+# fires exactly on time and dispatches this workflow. GitHub's own cron is
+# best-effort (runs can start well over an hour late) and gets disabled after
+# 60 idle days.
+on:
+  workflow_dispatch:
+
+# The cron and the "digest now" button both dispatch this workflow. Without a
+# concurrency group two runs can read the same /seen state, pick the same local
+# stories and send them twice. Queue instead of cancelling: a cancelled run
+# would have already sent part of its digest.
+concurrency:
+  group: daily-news-digest
+  cancel-in-progress: false
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      # Optional: keep your persona and feeds private by storing the whole
+      # digest.config.mjs module source in the DIGEST_CONFIG secret. Without
+      # it the committed digest.config.example.mjs is used.
+      - name: Write private config
+        env:
+          DIGEST_CONFIG: ${{ secrets.DIGEST_CONFIG }}
+        run: |
+          if [ -n "$DIGEST_CONFIG" ]; then
+            printf '%s\n' "$DIGEST_CONFIG" > digest.config.mjs
+            echo "using digest.config.mjs from the DIGEST_CONFIG secret"
+          else
+            echo "DIGEST_CONFIG not set — using digest.config.example.mjs"
+          fi
+      - name: Run digest
+        run: node digest.mjs
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          INGEST_URL: ${{ secrets.INGEST_URL }}
+          INGEST_SECRET: ${{ secrets.INGEST_SECRET }}

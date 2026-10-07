@@ -1,0 +1,9 @@
+node_modules/
+.DS_Store
+
+# Personal configuration — never committed
+digest.config.mjs
+worker/wrangler.toml
+worker/.wrangler/
+worker/.dev.vars
+.env
